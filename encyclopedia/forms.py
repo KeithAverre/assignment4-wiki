@@ -1,9 +1,9 @@
 from django import forms
 class NewTaskForm(forms.Form):
     entryTitle = forms.CharField(label = "Title")
-    entryContent = forms.CharField(widget = forms.Textarea())
+    entryContent = forms.CharField(label="content",widget = forms.Textarea())
 
-    def __init__(self, session, title= None, content = None):
+    def __init__(self, session =None, title= None, content = None):
         self.session = session
         self.entryTitle = title
         self.entryContent = content

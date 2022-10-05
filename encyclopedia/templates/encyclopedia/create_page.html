@@ -6,6 +6,11 @@
 
 {% block body %}
     <h1>Create a Page</h1>
-
+    {% if form %}
+    <form action="{% url 'create_page' %}">
+        {{ form }}
+    <input type="submit">
+    </form>
+    {% endif %}
 
 {% endblock %}

@@ -6,11 +6,16 @@
 
 {% block body %}
 
-    <p>{{ content | safe}}</p>
+
     {% if form %}
         <form action="{% url '{{ TITLE }}' %}" method="POST">
 
         {{ form }}
+            <input type="submit">
+        </form>
+    {% else %}
+        <p>{{ content | safe}}</p>
+        <form action="{% url 'edit_page' arg1=TITLE  %}">
             <input type="submit">
         </form>
     {% endif %}
