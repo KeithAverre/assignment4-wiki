@@ -55,6 +55,9 @@ def create_page(request):
             page = util.get_entry(entry_title)
             if page is not None:
                 return render(request, "encyclopedia/error_page.html", {"errormsg" : f"Page {entry_title} was not found"})
+            else:
+                util.save_entry(entry_title,entry_content)
+                return redirect(entry_title)
     else:
         return render(request, "encyclopedia/create_page.html", {"form": NewTaskForm()})
     return -1
