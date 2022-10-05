@@ -7,6 +7,12 @@
 {% block body %}
 
     <p>{{ content | safe}}</p>
+    {% if form %}
+        <form action="{% url '{{ TITLE }}' %}" method="POST">
 
+        {{ form }}
+            <input type="submit">
+        </form>
+    {% endif %}
 
 {% endblock %}
