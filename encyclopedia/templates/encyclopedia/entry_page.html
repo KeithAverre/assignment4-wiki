@@ -8,7 +8,7 @@
 
 
     {% if form %}
-        {% with title="{{ TITLE }}" %}
+        {% with title=TITLE %}
 
             <h1>Page editing for {{ title }}</h1>
         <form action="{% url 'entry_page' title %}" method="POST">
@@ -19,7 +19,7 @@
         </form>
         {% endwith %}
     {% else %}
-        {% with title="{{ TITLE }}" %}
+        {% with title=TITLE %}
         <p>{{ content | safe}}</p>
 
         <form action="{% url 'edit_page' title  %}">

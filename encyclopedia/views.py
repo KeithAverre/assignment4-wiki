@@ -44,7 +44,7 @@ def entry_page(request, TITLE):
 
 
 def edit_page(request,page):
-    return render(request, "encyclopedia/entry_page.html", {"form" : NewTaskForm(), "TITLE": page})
+    return render(request, "encyclopedia/entry_page.html", {"form" : NewTaskForm(initial={'entryTitle':page, 'entryContent': util.get_entry(page)}), "TITLE": page})
 
 @csrf_exempt
 def create_page(request):
