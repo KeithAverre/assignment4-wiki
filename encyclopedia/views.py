@@ -16,7 +16,7 @@ def index(request):
     "entries": util.list_entries()
     })
 
-@csrf_exempt
+#@csrf_exempt
 def entry_page(request, TITLE):
     if request.method == "POST":
         form = NewTaskForm(request.POST)
@@ -26,11 +26,11 @@ def entry_page(request, TITLE):
             page = util.get_entry(entry_title)
             if page is not None:
                 util.save_entry(entry_title, entry_content)
-                context = {"title": TITLE}
+                context = {"TITLE": TITLE, "content": entry_content}
                 return render(request, "encyclopedia/entry_page.html", context)
             else:
                 util.replace_entry(TITLE, entry_title, entry_content)
-                context = {"title": TITLE, "content": entry_content}
+                context = {"TITLE": TITLE, "content": entry_content}
                 return render(request, "encyclopedia/entry_page.html", context)
     else:
         page = util.get_entry(TITLE)
@@ -40,17 +40,26 @@ def entry_page(request, TITLE):
             content = markdowner.convert(page)
             return render(request, "encyclopedia/entry_page.html", {"content": content, "TITLE":TITLE})
         else:
-            return render(request, "encyclopedia/error_page.html", {"errormsg" : f'Could not find page {TITLE}'})#fix so that when entering it
+            entries = util.list_entries()
+            found = []
+            for i in range(len(entries)):
+                temp = entries[i]
+                if temp.find(TITLE) != -1:
+                    found.append(entries[i])
+            context={
+                "errormsg": f'Could not find page {TITLE}',
+                "found":found,
+                "TITLE":TITLE,
+            }
+            print(found)
+            return render(request, "encyclopedia/error_page.html", context)
 
 
 def edit_page(request,page):
     return render(request, "encyclopedia/entry_page.html", {"form" : NewTaskForm(initial={'entryTitle':page, 'entryContent': util.get_entry(page)}), "TITLE": page})
 
-@csrf_exempt
+#@csrf_exempt
 def create_page(request):
-
-    #add a new newtaskform
-    #
     if request.method == "POST":
         form = NewTaskForm(request.POST)
         if form.is_valid():
@@ -63,8 +72,7 @@ def create_page(request):
                 util.save_entry(entry_title,entry_content)
                 return redirect('index')
     else:
-        return render(request, "encyclopedia/create_page.html", {"form": NewTaskForm()})
-    return -1
+        return render(request, "encyclopedia/create_page.html", {"form": NewTaskForm(initial={})})
 
 def entry(request):
     re = request.GET["q"]

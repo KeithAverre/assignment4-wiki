@@ -6,6 +6,14 @@
 
 {% block body %}
     <h1>Error!</h1>
-    {{ errormsg }}
+    <h4>{{ errormsg }}</h4><br>
+    {% if found %}
+        <h3>Below is a list of possibilities for <q>{{ TITLE }}</q>:</h3>
+        <ul>
+        {% for entry in found %}
+            <li><a href="{% url 'entry_page' entry %}">{{ entry }}</a></li>
+        {% endfor %}
+        </ul>
+    {% endif %}
 
 {% endblock %}
