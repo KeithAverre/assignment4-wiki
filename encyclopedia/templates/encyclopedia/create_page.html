@@ -6,9 +6,15 @@
 
 {% block body %}
     <h1>Create a Page</h1>
+    {% if errormsg %}
+    {{ errormsg }}
+    {% endif %}
+
     {% if form %}
     <form action="{% url 'create_page' %}" method="post">
-        {{ form }}
+        {% csrf_token %}
+        {{ form.as_table }}
+
     <input type="submit">
     </form>
     {% endif %}

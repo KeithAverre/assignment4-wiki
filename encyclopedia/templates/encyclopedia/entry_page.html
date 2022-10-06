@@ -8,16 +8,25 @@
 
 
     {% if form %}
-        <form action="{% url '{{ TITLE }}' %}" method="POST">
+        {% with title="{{ TITLE }}" %}
 
-        {{ form }}
+            <h1>Page editing for {{ title }}</h1>
+        <form action="{% url 'entry_page' title %}" method="POST">
+
+        {{ form.as_table }}
             <input type="submit">
+            <input type="reset">
         </form>
+        {% endwith %}
     {% else %}
+        {% with title="{{ TITLE }}" %}
         <p>{{ content | safe}}</p>
-        <form action="{% url 'edit_page' arg1=TITLE  %}">
-            <input type="submit">
+
+        <form action="{% url 'edit_page' title  %}">
+            <input type="submit" value="Edit Page">
         </form>
+    {% endwith %}
     {% endif %}
+
 
 {% endblock %}
