@@ -16,8 +16,18 @@ def index(request):
     "entries": util.list_entries()
     })
 
-#@csrf_exempt
-def entry_page(request, TITLE):
+def entry_page(request, title):
+    page = util.get_entry(title)
+    if page is not None:
+        #markdown magic for the win
+        markdowner = Markdown()
+        content = markdowner.convert(page)
+        return render(request, "encyclopedia/entry_page.html", {"content": content, "title":title})
+    else:
+        redirect("index")
+
+
+def edit_page(request, title):
     if request.method == "POST":
         form = NewTaskForm(request.POST)
         if form.is_valid():
@@ -26,39 +36,14 @@ def entry_page(request, TITLE):
             page = util.get_entry(entry_title)
             if page is not None:
                 util.save_entry(entry_title, entry_content)
-                context = {"TITLE": TITLE, "content": entry_content}
-                return render(request, "encyclopedia/entry_page.html", context)
+                return redirect("entry_page", title=entry_title)
             else:
-                util.replace_entry(TITLE, entry_title, entry_content)
-                context = {"TITLE": TITLE, "content": entry_content}
-                return render(request, "encyclopedia/entry_page.html", context)
-    else:
-        page = util.get_entry(TITLE)
-        if page is not None:
-            #markdown magic for the win
-            markdowner = Markdown()
-            content = markdowner.convert(page)
-            return render(request, "encyclopedia/entry_page.html", {"content": content, "TITLE":TITLE})
-        else:
-            entries = util.list_entries()
-            found = []
-            for i in range(len(entries)):
-                temp = entries[i]
-                if temp.find(TITLE) != -1:
-                    found.append(entries[i])
-            context={
-                "errormsg": f'Could not find page {TITLE}',
-                "found":found,
-                "TITLE":TITLE,
-            }
-            print(found)
-            return render(request, "encyclopedia/error_page.html", context)
+                util.replace_entry(title, entry_title, entry_content)
+                context = {"title": title, "content": entry_content}
+                return redirect("entry_page", title=entry_title)
+    return render(request, "encyclopedia/edit_page.html", 
+    {"form" : NewTaskForm(initial={'entryTitle':title, 'entryContent': util.get_entry(title)}), "title": title})
 
-
-def edit_page(request,page):
-    return render(request, "encyclopedia/entry_page.html", {"form" : NewTaskForm(initial={'entryTitle':page, 'entryContent': util.get_entry(page)}), "TITLE": page})
-
-#@csrf_exempt
 def create_page(request):
     if request.method == "POST":
         form = NewTaskForm(request.POST)
@@ -74,10 +59,25 @@ def create_page(request):
     else:
         return render(request, "encyclopedia/create_page.html", {"form": NewTaskForm(initial={})})
 
-def entry(request):
-    re = request.GET["q"]
-    return redirect(reverse('entry_page', kwargs = {"TITLE":re}))#huge credit to an ideas from https://www.youtube.com/watch?v=obRENgwHS7A
+def search(request):
+    re = request.GET.get("q", "")
+    if len(re) == 0:
+        return redirect("index")
+    if util.get_entry(re) != None:
+        return redirect("entry_page", title=re)
+    all_entries = util.list_entries()
+    partial_matches = [
+        entry for entry in all_entries if entry.casefold().find(re.casefold()) != -1]
+    context={
+        "errormsg": f'Could not find the entry {re}',
+        "found":partial_matches,
+        "title":re,
+    }
+    return render(request, "encyclopedia/search_results.html", context)
+
 def random_page(request):
     entries = util.list_entries()
-    entries = entries[random.randint(0,len(entries)-1)]
-    return redirect(reverse('entry_page', kwargs = {"TITLE":entries}))#huge credit to an ideas from https://www.youtube.com/watch?v=obRENgwHS7A
+    random_entry = entries[random.randint(0,len(entries)-1)]
+    # bad practice to change the type of the variable! you are changing entries from a list to a string
+    #return redirect(reverse('entry_page', kwargs = {"TITLE":entries}))#huge credit to an ideas from https://www.youtube.com/watch?v=obRENgwHS7A
+    return redirect('entry_page', title=random_entry)

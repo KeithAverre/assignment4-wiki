@@ -1,34 +1,16 @@
 {% extends "encyclopedia/layout.html" %}
 
 {% block title %}
-    Encyclopedia
+    {{title}}
 {% endblock %}
 
 {% block body %}
 
+<h1>{{ title }}</h1>
+<p>{{ content | safe}}</p>
 
-    {% if form %}
-        {% with title=TITLE %}
-
-            <h1>Page editing for <q>{{ title }}</q></h1>
-        <form action="{% url 'entry_page' title %}" method="POST">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <input type="submit">
-            <input type="reset">
-        </form>
-        {% endwith %}
-    {% else %}
-        {% with title=TITLE %}
-        <h1>{{ title }}</h1>
-        <p>{{ content | safe}}</p>
-
-        <form action="{% url 'edit_page' title  %}" method="POST">
-            {% csrf_token %}
-            <input type="submit" value="Edit Page">
-        </form>
-    {% endwith %}
-    {% endif %}
-
+<form action="{% url 'edit_page' title %}">
+    <input type="submit" value="Edit Page">
+</form>
 
 {% endblock %}
